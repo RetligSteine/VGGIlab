@@ -11,25 +11,33 @@ function deg2rad(angle) {
 
 
 // Constructor
+// Сам об'єкт
 function Model(name) {
     this.name = name;
     this.iVertexBuffer = gl.createBuffer();
     this.count = 0;
 
+    //Забуферизувати дані
     this.BufferData = function(vertices) {
 
+        //Вимагається певна послідовність даних
         gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STREAM_DRAW);
 
         this.count = vertices.length/3;
     }
 
+    //Відтворити (намалювати) дані
     this.Draw = function() {
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
+        //Як розуміти дані, які забуферизовано (3 коорд, флоат, не нормалізувати, зміщення(0))
         gl.vertexAttribPointer(shProgram.iAttribVertex, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(shProgram.iAttribVertex);
    
+        //Відмальовування
+        //    ТУТ ЗМІНИТИ                                                                           !!!!!!!!!!!!!!!!!!!!!!!!!!
+        //LINE_STRIP - тип, полілінія, зміщення (звідки) і скільки
         gl.drawArrays(gl.LINE_STRIP, 0, this.count);
     }
 }
@@ -59,7 +67,9 @@ function ShaderProgram(name, program) {
  * way to draw with WebGL.  Here, the geometry is so simple that it doesn't matter.)
  */
 function draw() { 
-    gl.clearColor(0,0,0,1);
+    //Колір чистого фону
+    //gl.clearColor(0.447, 0.58, 0.847, 1);
+    gl.clearColor(0, 0, 0, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
     /* Set the values of the projection transformation */
@@ -80,37 +90,31 @@ function draw() {
 
     gl.uniformMatrix4fv(shProgram.iModelViewProjectionMatrix, false, modelViewProjection );
     
-    /* Draw the six faces of a cube, with different colors. */
-    gl.uniform4fv(shProgram.iColor, [1,1,0,1] );
+    /* Draw with this color. */
+    //gl.uniform4fv(shProgram.iColor, [0.95, 0.95, 1, 1] );
+    gl.uniform4fv(shProgram.iColor, [0, 1, 0, 1] );
 
     surface.Draw();
-}
-
-function CreateSurfaceData()
-{
-    let vertexList = [];
-
-    for (let i=0; i<360; i+=5) {
-        vertexList.push( Math.sin(deg2rad(i)), 1, Math.cos(deg2rad(i)) );
-        vertexList.push( Math.sin(deg2rad(i)), 0, Math.cos(deg2rad(i)) );
-    }
-
-    return vertexList;
 }
 
 
 /* Initialize the WebGL context. Called from init() */
 function initGL() {
+    //Створення шейдерної програми
     let prog = createProgram( gl, vertexShaderSource, fragmentShaderSource );
 
     shProgram = new ShaderProgram('Basic', prog);
     shProgram.Use();
 
+    //Зв'язуємо графічний процесор з центральним для всього, що використовуємо
     shProgram.iAttribVertex              = gl.getAttribLocation(prog, "vertex");
     shProgram.iModelViewProjectionMatrix = gl.getUniformLocation(prog, "ModelViewProjectionMatrix");
     shProgram.iColor                     = gl.getUniformLocation(prog, "color");
 
+    //Створення буфера
     surface = new Model('Surface');
+
+    //ФУНКЦІЯ ПОВЕРХНІ
     surface.BufferData(CreateSurfaceData());
 
     gl.enable(gl.DEPTH_TEST);
@@ -125,19 +129,24 @@ function initGL() {
  * The second and third parameters are strings that contain the
  * source code for the vertex shader and for the fragment shader.
  */
+//Тут беремо шейдери
+//І віддаємо компілятору глсл
 function createProgram(gl, vShader, fShader) {
+    //Вертексний шейдер
     let vsh = gl.createShader( gl.VERTEX_SHADER );
     gl.shaderSource(vsh,vShader);
     gl.compileShader(vsh);
     if ( ! gl.getShaderParameter(vsh, gl.COMPILE_STATUS) ) {
         throw new Error("Error in vertex shader:  " + gl.getShaderInfoLog(vsh));
      }
+    //Фрагментний (піксельний) шейдер
     let fsh = gl.createShader( gl.FRAGMENT_SHADER );
     gl.shaderSource(fsh, fShader);
     gl.compileShader(fsh);
     if ( ! gl.getShaderParameter(fsh, gl.COMPILE_STATUS) ) {
        throw new Error("Error in fragment shader:  " + gl.getShaderInfoLog(fsh));
     }
+    //Додаємо до програми
     let prog = gl.createProgram();
     gl.attachShader(prog,vsh);
     gl.attachShader(prog, fsh);
@@ -153,6 +162,8 @@ function createProgram(gl, vShader, fShader) {
  * initialization function that will be called when the page has loaded
  */
 function init() {
+    //Шукаємо канвас
+    //І контекст вебгл
     let canvas;
     try {
         canvas = document.getElementById("webglcanvas");
@@ -166,6 +177,8 @@ function init() {
             "<p>Sorry, could not get a WebGL graphics context.</p>";
         return;
     }
+
+    //Ініціюєму гл і трекболротатор
     try {
         initGL();  // initialize the WebGL graphics context
     }
@@ -177,5 +190,6 @@ function init() {
 
     spaceball = new TrackballRotator(canvas, draw, 0);
 
+    //Починаємо малювати
     draw();
 }

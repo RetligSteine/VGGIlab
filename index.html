@@ -1,31 +1,39 @@
 <!DOCTYPE html>
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html>
 
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-<title>PA#1</title>
-<style>
-    body {
-        background-color: #EEEEEE;
-    }
-</style>
+    <title>PA#1</title>
+    <style>
+        body {
+            background-color: #EEEEEE;
+        }
 
-<script src="./Utils/trackball-rotator.js"></script>
-<script src="./Utils/m4.js"></script>
-<script src="./shader.gpu"></script>
-<script src="./main.js"></script>
+        h1,
+        h2 {
+            text-align: center;
+        }
+    </style>
+
+    <script src="./Utils/trackball-rotator.js"></script>
+    <script src="./Utils/m4.js"></script>
+    <script src="./shader.gpu"></script>
+    <script src="./Utils/RichmondsMinimalSurface.js"></script>
+    <script src="./main.js"></script>
+
 
 </head>
+
 <body onload="init()">
 
-<h2>A Cube with "Trackball" Mouse Rotation</h2>
+    <h1>Practical assignment №1</h1>
+    <h1>RICHMOND'S MINIMAL SURFACE</h1>
+    <h2>Sukhenko Bohdan, TR-41mp</h2>
 
-<p id="message">Drag your mouse on the cube to rotate it.<br>
-(On a touch screen, you can use your finger.)</p>
+    <div id="canvas-holder">
+        <canvas width="1500" height="550" id="webglcanvas" style="background-color:red"></canvas>
+    </div>
 
-
-<div id="canvas-holder">
-   <canvas width="1200" height="800" id="webglcanvas" style="background-color:red"></canvas>
-</div>
-
-
-</body></html>
+</body>
+</html>
