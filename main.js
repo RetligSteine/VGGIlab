@@ -37,8 +37,8 @@ function ShaderProgram(name, program) {
  */
 function draw() { 
     //Колір чистого фону
-    //gl.clearColor(0.447, 0.58, 0.847, 1);
-    gl.clearColor(0, 0, 0, 1);
+    gl.clearColor(0.447, 0.58, 0.847, 1);
+    //gl.clearColor(0, 0, 0, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
     /* Set the values of the projection transformation */
@@ -60,8 +60,8 @@ function draw() {
     gl.uniformMatrix4fv(shProgram.iModelViewProjectionMatrix, false, modelViewProjection );
     
     /* Draw with this color. */
-    //gl.uniform4fv(shProgram.iColor, [0.95, 0.95, 1, 1] );
-    gl.uniform4fv(shProgram.iColor, [0, 1, 0, 1] );
+    gl.uniform4fv(shProgram.iColor, [0.95, 0.95, 1, 1] );
+    //gl.uniform4fv(shProgram.iColor, [0, 1, 0, 1] );
 
     surface.Draw();
 }

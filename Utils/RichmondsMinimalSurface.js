@@ -26,11 +26,10 @@ function Model(name, linesInPolyLine) {
         gl.enableVertexAttribArray(shProgram.iAttribVertex);
    
         //Відмальовування
-        //LINE_STRIP - полілінія, зміщення (звідки) і на скільки
-        for (let i = 0; i < this.count; i++) {
-            gl.drawArrays(gl.LINE_STRIP, i * linesInPolyLine, linesInPolyLine);
-        }
         //gl.drawArrays(gl.LINE_STRIP, 0, this.count);
+        for (let i = 0; i < this.count; i++) {
+            gl.drawArrays(gl.LINE_STRIP, i * (this.linesInPolyLine +1), this.linesInPolyLine+1);
+        }     
     }
 }
 
@@ -38,34 +37,30 @@ function Model(name, linesInPolyLine) {
 //Створення точок самої поверхні
 function CreateSurfaceData(linesInPolyLine) {
     let vertexList = [];
-    let uMin = 0.1, uMax = 1, vMin = 0.1, vMax = 1
+    let rMin = 0.25, rMax = 1, oMin = 0, oMax = 2*Math.PI;
 
-    let uStep = (uMax - uMin) / linesInPolyLine;
-    let vStep = (vMax - vMin) / linesInPolyLine;
+    let rStep = (rMax - rMin) / linesInPolyLine;
+    let oStep = (oMax - oMin) / linesInPolyLine;
 
-    for (let u = uMin; u <= uMax; u += uStep) {
-        for (let v = vMin; v <= vMax; v += vStep) {
-            if (u === 0 && v === 0) continue;
-
-            let x = (-3*u - u*u*u*u*u + 2*u*u*u*v*v + 3*u*v*v*v*v) / (6 * (u*u + v*v));
-            let y = (-3*v - 3*u*u*u*u*v - 2*u*u*v*v*v + v*v*v*v*v) / (6 * (u*u + v*v));
-            let z = u;
+    for (let r = rMin; r <= rMax; r += rStep) {
+        for (let o = oMin; o <= oMax; o += oStep) {
+            let x = -Math.cos(o)/(2 * r) - (r*r*r*Math.cos(3*o))/6;
+            let y = -Math.sin(o)/(2 * r) - (r*r*r*Math.sin(3*o))/6;
+            let z = r*Math.cos(o);
 
             vertexList.push(x, y, z);
         }
     }
-/*
-    for (let v = vMin; v <= vMax; v += vStep) {
-        for (let u = uMin; u <= uMax; u += uStep) {
-            if (u === 0 && v === 0) continue;
-
-            let x = (-3*u - u*u*u*u*u + 2*u*u*u*v*v + 3*u*v*v*v*v) / (6 * (u*u + v*v));
-            let y = (-3*v - 3*u*u*u*u*v - 2*u*u*v*v*v + v*v*v*v*v) / (6 * (u*u + v*v));
-            let z = u;
+    
+    for (let o = oMin; o <= oMax; o += oStep) {
+        for (let r = rMin; r <= rMax; r += rStep) {
+            let x = -Math.cos(o)/(2 * r) - (r*r*r*Math.cos(3*o))/6;
+            let y = -Math.sin(o)/(2 * r) - (r*r*r*Math.sin(3*o))/6;
+            let z = r*Math.cos(o);
 
             vertexList.push(x, y, z);
         }
     }
-*/
+
     return vertexList;
 }
