@@ -5,48 +5,10 @@ let surface;                    // A surface model
 let shProgram;                  // A shader program
 let spaceball;                  // A SimpleRotator object that lets the user rotate the view by mouse.
 
-let steps = 20;
+let linesInPolyLine = 20;
 
 function deg2rad(angle) {
     return angle * Math.PI / 180;
-}
-
-
-// Constructor
-// Сам об'єкт
-function Model(name) {
-    this.name = name;
-    this.iVertexBuffer = gl.createBuffer();
-    this.count = 0;
-
-    //Забуферизувати дані
-    this.BufferData = function(vertices) {
-
-        //Вимагається певна послідовність даних
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STREAM_DRAW);
-
-        this.count = vertices.length/3;
-    }
-
-    //Відтворити (намалювати) дані
-    this.Draw = function() {
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
-        //Як розуміти дані, які забуферизовано (3 коорд, флоат, не нормалізувати, зміщення(0))
-        gl.vertexAttribPointer(shProgram.iAttribVertex, 3, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(shProgram.iAttribVertex);
-   
-        //Відмальовування
-        //LINE_STRIP - тип, полілінія, зміщення (звідки) і скільки
-        gl.drawArrays(gl.LINE_STRIP, 0, this.count);
-        /*
-        for (let i = 0; i += steps; i < this.count) {
-            gl.drawArrays(gl.LINE_STRIP, i, steps);
-        }
-        */
-        
-    }
 }
 
 
@@ -80,7 +42,7 @@ function draw() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
     /* Set the values of the projection transformation */
-    let projection = m4.perspective(Math.PI/8, 1, 8, 12); 
+    let projection = m4.perspective(Math.PI / 6, 1500/550, 3, 25); 
     
     /* Get the view matrix from the SimpleRotator object.*/
     let modelView = spaceball.getViewMatrix();
@@ -119,10 +81,10 @@ function initGL() {
     shProgram.iColor                     = gl.getUniformLocation(prog, "color");
 
     //Створення буфера
-    surface = new Model("RICHMOND'S MINIMAL SURFACE");
+    surface = new Model("RICHMOND'S MINIMAL SURFACE", linesInPolyLine);
 
     //ФУНКЦІЯ ПОВЕРХНІ
-    surface.BufferData(CreateSurfaceData(steps));
+    surface.BufferData(CreateSurfaceData(surface.linesInPolyLine));
 
     gl.enable(gl.DEPTH_TEST);
 }
