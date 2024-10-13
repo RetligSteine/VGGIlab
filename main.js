@@ -5,6 +5,8 @@ let surface;                    // A surface model
 let shProgram;                  // A shader program
 let spaceball;                  // A SimpleRotator object that lets the user rotate the view by mouse.
 
+let steps = 20;
+
 function deg2rad(angle) {
     return angle * Math.PI / 180;
 }
@@ -36,9 +38,14 @@ function Model(name) {
         gl.enableVertexAttribArray(shProgram.iAttribVertex);
    
         //Відмальовування
-        //    ТУТ ЗМІНИТИ                                                                           !!!!!!!!!!!!!!!!!!!!!!!!!!
         //LINE_STRIP - тип, полілінія, зміщення (звідки) і скільки
         gl.drawArrays(gl.LINE_STRIP, 0, this.count);
+        /*
+        for (let i = 0; i += steps; i < this.count) {
+            gl.drawArrays(gl.LINE_STRIP, i, steps);
+        }
+        */
+        
     }
 }
 
@@ -112,10 +119,10 @@ function initGL() {
     shProgram.iColor                     = gl.getUniformLocation(prog, "color");
 
     //Створення буфера
-    surface = new Model('Surface');
+    surface = new Model("RICHMOND'S MINIMAL SURFACE");
 
     //ФУНКЦІЯ ПОВЕРХНІ
-    surface.BufferData(CreateSurfaceData());
+    surface.BufferData(CreateSurfaceData(steps));
 
     gl.enable(gl.DEPTH_TEST);
 }
