@@ -2,7 +2,7 @@
 //Basing on the skeleton project add a new js script file containing Model object.
 //Model object has to draw the surface wireframe as two sets of vertices: a set of U polylines and a set of V polylines.
 
-// Constructor
+//Constructor
 function Model(name, linesInPolyLine) {
     this.name = name;
     this.iVertexBuffer = gl.createBuffer();
@@ -28,35 +28,35 @@ function Model(name, linesInPolyLine) {
         //Відмальовування
         //gl.drawArrays(gl.LINE_STRIP, 0, this.count);
         for (let i = 0; i < this.count; i++) {
-            gl.drawArrays(gl.LINE_STRIP, i * (this.linesInPolyLine +1), this.linesInPolyLine+1);
+            gl.drawArrays(gl.LINE_STRIP, i * (this.linesInPolyLine + 1), this.linesInPolyLine + 1);
         }     
     }
 }
 
 
-//Створення точок самої поверхні
+//Створення точок Мінімальної поверхні Річмонда
 function CreateSurfaceData(linesInPolyLine) {
     let vertexList = [];
-    let rMin = 0.25, rMax = 1, oMin = 0, oMax = 2*Math.PI;
+    let uMin = 0.25, uMax = 1, vMin = 0, vMax = 2*Math.PI;
 
-    let rStep = (rMax - rMin) / linesInPolyLine;
-    let oStep = (oMax - oMin) / linesInPolyLine;
+    let uStep = (uMax - uMin) / linesInPolyLine;
+    let vStep = (vMax - vMin) / linesInPolyLine;
 
-    for (let r = rMin; r <= rMax; r += rStep) {
-        for (let o = oMin; o <= oMax; o += oStep) {
-            let x = -Math.cos(o)/(2 * r) - (r*r*r*Math.cos(3*o))/6;
-            let y = -Math.sin(o)/(2 * r) - (r*r*r*Math.sin(3*o))/6;
-            let z = r*Math.cos(o);
+    for (let u = uMin; u <= uMax; u += uStep) {
+        for (let v = vMin; v <= vMax; v += vStep) {
+            let x = -Math.cos(v)/(2 * u) - (u*u*u*Math.cos(3*v))/6;
+            let y = -Math.sin(v)/(2 * u) - (u*u*u*Math.sin(3*v))/6;
+            let z = u * Math.cos(v);
 
             vertexList.push(x, y, z);
         }
     }
     
-    for (let o = oMin; o <= oMax; o += oStep) {
-        for (let r = rMin; r <= rMax; r += rStep) {
-            let x = -Math.cos(o)/(2 * r) - (r*r*r*Math.cos(3*o))/6;
-            let y = -Math.sin(o)/(2 * r) - (r*r*r*Math.sin(3*o))/6;
-            let z = r*Math.cos(o);
+    for (let v = vMin; v <= vMax; v += vStep) {
+        for (let u = uMin; u <= uMax; u += uStep) {
+            let x = -Math.cos(v)/(2 * u) - (u*u*u*Math.cos(3*v))/6;
+            let y = -Math.sin(v)/(2 * u) - (u*u*u*Math.sin(3*v))/6;
+            let z = u * Math.cos(v);
 
             vertexList.push(x, y, z);
         }
