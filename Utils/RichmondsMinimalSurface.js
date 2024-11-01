@@ -64,3 +64,9 @@ function CreateSurfaceData(linesInPolyLine) {
 
     return vertexList;
 }
+
+
+
+
+//Shading Gouraud
+//Normal Analytic
