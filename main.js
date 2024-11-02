@@ -21,7 +21,8 @@ function updateGranularity() {
     document.getElementById("uGranularityValue").textContent = surface.uGranularity;
     document.getElementById("vGranularityValue").textContent = surface.vGranularity;
 
-    surface.BufferData(CreateSurfaceData(surface.uGranularity, surface.vGranularity));
+    let surfaceData = CreateSurfaceData(surface.uGranularity, surface.vGranularity);
+    surface.BufferData(surfaceData.vertices, surfaceData.indices);
     draw();
 }
 
@@ -98,7 +99,8 @@ function initGL() {
     surface = new Model("RICHMOND'S MINIMAL SURFACE", vGranularity, uGranularity);
 
     //ФУНКЦІЯ ПОВЕРХНІ
-    surface.BufferData(CreateSurfaceData(surface.uGranularity, surface.vGranularity));
+    let surfaceData = CreateSurfaceData(surface.uGranularity, surface.vGranularity);
+    surface.BufferData(surfaceData.vertices, surfaceData.indices);
 
     gl.enable(gl.DEPTH_TEST);
 }

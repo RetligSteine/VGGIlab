@@ -15,6 +15,13 @@
         h2 {
             text-align: center;
         }
+
+        #controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 75px;
+        }
     </style>
 
     <script src="./Utils/trackball-rotator.js"></script>
@@ -31,18 +38,23 @@
     <h2>Sukhenko Bohdan, TR-41mp</h2>
 
     <div id="canvas-holder">
-        <canvas width="1500" height="550" id="webglcanvas" style="background-color:red"></canvas>
+        <canvas width="1500" height="500" id="webglcanvas" style="background-color:red"></canvas>
     </div>
 
     <div id="controls">
-        <label for="uGranularity">U Granularity:</label>
-        <input type="range" id="uGranularity" min="5" max="100" value="20" oninput="updateGranularity()">
-        <span id="uGranularityValue">20</span>
+        <div>
+            <label for="uGranularity">U Granularity:</label>
+            <input type="range" id="uGranularity" min="3" max="50" value="20" oninput="updateGranularity()">
+            <span id="uGranularityValue">20</span>
+        </div>
 
-        <label for="vGranularity">V Granularity:</label>
-        <input type="range" id="vGranularity" min="5" max="100" value="20" oninput="updateGranularity()">
-        <span id="vGranularityValue">20</span>
+        <div>
+            <label for="vGranularity">V Granularity:</label>
+            <input type="range" id="vGranularity" min="5" max="50" value="20" oninput="updateGranularity()">
+            <span id="vGranularityValue">20</span>
+        </div>
     </div>
 
 </body>
+
 </html>
