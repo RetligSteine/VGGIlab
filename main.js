@@ -13,7 +13,8 @@ function deg2rad(angle) {
 }
 
 
-//Update the surface based on slider input for U and V granularities
+//Оновлення даних двох слайдерів,
+//що забезпечують можливість контролювати зернистість поверхні в U та V напрямках
 function updateGranularity() {
     surface.uGranularity = parseInt(document.getElementById("uGranularity").value);
     surface.vGranularity = parseInt(document.getElementById("vGranularity").value);
@@ -21,8 +22,9 @@ function updateGranularity() {
     document.getElementById("uGranularityValue").textContent = surface.uGranularity;
     document.getElementById("vGranularityValue").textContent = surface.vGranularity;
 
+    //Оновлення поверхні
     let surfaceData = CreateSurfaceData(surface.uGranularity, surface.vGranularity);
-    surface.BufferData(surfaceData.vertices, surfaceData.indices);
+    surface.BufferData(surfaceData.vertices, surfaceData.indices, surfaceData.normals);
     draw();
 }
 
@@ -100,7 +102,7 @@ function initGL() {
 
     //ФУНКЦІЯ ПОВЕРХНІ
     let surfaceData = CreateSurfaceData(surface.uGranularity, surface.vGranularity);
-    surface.BufferData(surfaceData.vertices, surfaceData.indices);
+    surface.BufferData(surfaceData.vertices, surfaceData.indices, surfaceData.normals);
 
     gl.enable(gl.DEPTH_TEST);
 }
