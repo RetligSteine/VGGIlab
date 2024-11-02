@@ -3,7 +3,7 @@
 //Model object has to draw the surface wireframe as two sets of vertices: a set of U polylines and a set of V polylines.
 
 //Shading Gouraud
-//Normal Analytic
+
 
 
 //Constructor
@@ -108,7 +108,7 @@ function CreateSurfaceData(uGranularity, vGranularity) {
 
 
 
-
+//Normal Analytic
 //Обчислюємо вектор нормалі як перехресний добуток дотичних U та V
 function calculateNormal(u, v) {
     let tu = tangentU(u, v);
@@ -139,7 +139,7 @@ function tangentU(u, v) {
     let y1 = -Math.sin(v) / (2 * u1) - (u1 * u1 * u1 * Math.sin(3 * v)) / 6;
     let z1 = u1 * Math.cos(v);
 
-    return [x1 - x0, y1 - y0, z1 - z0];
+    return [(x1 - x0)/delta, (y1 - y0)/delta, (z1 - z0)/delta];
 }
 
 //Дотична по напрямку V
@@ -157,7 +157,7 @@ function tangentV(u, v) {
     let y1 = -Math.sin(v1) / (2 * u) - (u * u * u * Math.sin(3 * v1)) / 6;
     let z1 = u * Math.cos(v1);
 
-    return [x1 - x0, y1 - y0, z1 - z0];
+    return [(x1 - x0)/delta, (y1 - y0)/delta, (z1 - z0)/delta];
 }
 
 
