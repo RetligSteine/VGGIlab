@@ -5,10 +5,24 @@ let surface;                    // A surface model
 let shProgram;                  // A shader program
 let spaceball;                  // A SimpleRotator object that lets the user rotate the view by mouse.
 
-let linesInPolyLine = 20;
+let uGranularity = 20;
+let vGranularity = 20;
 
 function deg2rad(angle) {
     return angle * Math.PI / 180;
+}
+
+
+//Update the surface based on slider input for U and V granularities
+function updateGranularity() {
+    surface.uGranularity = parseInt(document.getElementById("uGranularity").value);
+    surface.vGranularity = parseInt(document.getElementById("vGranularity").value);
+
+    document.getElementById("uGranularityValue").textContent = surface.uGranularity;
+    document.getElementById("vGranularityValue").textContent = surface.vGranularity;
+
+    surface.BufferData(CreateSurfaceData(surface.uGranularity, surface.vGranularity));
+    draw();
 }
 
 
@@ -81,10 +95,10 @@ function initGL() {
     shProgram.iColor                     = gl.getUniformLocation(prog, "color");
 
     //Створення буфера
-    surface = new Model("RICHMOND'S MINIMAL SURFACE", linesInPolyLine);
+    surface = new Model("RICHMOND'S MINIMAL SURFACE", vGranularity, uGranularity);
 
     //ФУНКЦІЯ ПОВЕРХНІ
-    surface.BufferData(CreateSurfaceData(surface.linesInPolyLine));
+    surface.BufferData(CreateSurfaceData(surface.uGranularity, surface.vGranularity));
 
     gl.enable(gl.DEPTH_TEST);
 }

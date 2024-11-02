@@ -5,6 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
     <title>PA#1</title>
+
     <style>
         body {
             background-color: #EEEEEE;
@@ -22,17 +23,25 @@
     <script src="./Utils/RichmondsMinimalSurface.js"></script>
     <script src="./main.js"></script>
 
-
 </head>
 
 <body onload="init()">
-
     <h1>Practical assignment №1</h1>
     <h1>RICHMOND'S MINIMAL SURFACE</h1>
     <h2>Sukhenko Bohdan, TR-41mp</h2>
 
     <div id="canvas-holder">
         <canvas width="1500" height="550" id="webglcanvas" style="background-color:red"></canvas>
+    </div>
+
+    <div id="controls">
+        <label for="uGranularity">U Granularity:</label>
+        <input type="range" id="uGranularity" min="5" max="100" value="20" oninput="updateGranularity()">
+        <span id="uGranularityValue">20</span>
+
+        <label for="vGranularity">V Granularity:</label>
+        <input type="range" id="vGranularity" min="5" max="100" value="20" oninput="updateGranularity()">
+        <span id="vGranularityValue">20</span>
     </div>
 
 </body>
