@@ -2,6 +2,10 @@
 //Basing on the skeleton project add a new js script file containing Model object.
 //Model object has to draw the surface wireframe as two sets of vertices: a set of U polylines and a set of V polylines.
 
+//Shading Gouraud
+//Normal Analytic
+
+
 //Constructor
 function Model(name, uGranularity, vGranularity) {
     this.name = name;
@@ -14,7 +18,7 @@ function Model(name, uGranularity, vGranularity) {
     this.vGranularity = vGranularity;
 
     //Забуферизувати дані
-    this.BufferData = function (vertices, indices) {
+    this.BufferData = function (vertices, indices, normals) {
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STREAM_DRAW);
@@ -22,24 +26,30 @@ function Model(name, uGranularity, vGranularity) {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iIndexBuffer);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.iNormalBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+
         this.count = indices.length;
     }
 
     //Відтворити дані
     this.Draw = function () {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
-        //false -- не треба нормалізація
         gl.vertexAttribPointer(shProgram.iAttribVertex, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(shProgram.iAttribVertex);
 
-        //Відмальовування
-        gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0);
-        //gl.drawArrays(gl.LINE_STRIP, 0, this.count);
         /*
-        for (let i = 0; i < this.count; i++) {
-            gl.drawArrays(gl.LINE_STRIP, i * (this.uGranularity + 1), this.uGranularity + 1);
-        }
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.iNormalBuffer);
+        gl.vertexAttribPointer(shProgram.iAttribNormal, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(shProgram.iAttribNormal);
         */
+
+        //Відмальовування
+        //
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iIndexBuffer);
+        //
+
+        gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0);
     }
 }
 
@@ -48,42 +58,100 @@ function Model(name, uGranularity, vGranularity) {
 function CreateSurfaceData(uGranularity, vGranularity) {
     let vertexList = [];
     let indexList = [];
+    let normalList = [];
+
+    //Границі
     let uMin = 0.25, uMax = 1, vMin = 0, vMax = 2 * Math.PI;
 
+    //Кроки
     let uStep = (uMax - uMin) / uGranularity;
     let vStep = (vMax - vMin) / vGranularity;
 
-    //Generate vertices
+    //Вершини
     for (let i = 0; i <= uGranularity; i++) {
         let u = uMin + i * uStep;
         for (let j = 0; j <= vGranularity; j++) {
             let v = vMin + j * vStep;
 
+            //Координати
             let x = -Math.cos(v) / (2 * u) - (u * u * u * Math.cos(3 * v)) / 6;
             let y = -Math.sin(v) / (2 * u) - (u * u * u * Math.sin(3 * v)) / 6;
             let z = u * Math.cos(v);
-
             vertexList.push(x, y, z);
+
+            //Нормаль
+            let normal = calculateNormal(u, v);
+            normalList.push(...normal);
         }
     }
 
-    //Generate indices
+    //VBO (Vertex Buffer Object) з індексами
     for (let i = 0; i < uGranularity; i++) {
         for (let j = 0; j < vGranularity; j++) {
             let first = i * (vGranularity + 1) + j;
             let second = first + vGranularity + 1;
 
-            // reate two triangles for each quad
+            //Два трикутника на кожну вершину
             indexList.push(first, second, first + 1);
             indexList.push(second, second + 1, first + 1);
         }
     }
 
-    return { vertices: vertexList, indices: indexList };
+    return { vertices: vertexList, indices: indexList, normals: normalList };
 }
 
 
 
 
-//Shading Gouraud
-//Normal Analytic
+//Обчислюємо вектор нормалі як перехресний добуток дотичних U та V
+function calculateNormal(u, v) {
+    let tu = tangentU(u, v);
+    let tv = tangentV(u, v);
+
+    //Перехресний добуток
+    let nx = tu[1] * tv[2] - tu[2] * tv[1];
+    let ny = tu[2] * tv[0] - tu[0] * tv[2];
+    let nz = tu[0] * tv[1] - tu[1] * tv[0];
+
+    //Нормалізуємо
+    let length = Math.sqrt(nx * nx + ny * ny + nz * nz);
+    return [nx / length, ny / length, nz / length];
+}
+
+//Дотична по напрямку U
+function tangentU(u, v) {
+    let delta = 0.001;
+    let u1 = u + delta;
+
+    //f(u, v)
+    let x0 = -Math.cos(v) / (2 * u) - (u * u * u * Math.cos(3 * v)) / 6;
+    let y0 = -Math.sin(v) / (2 * u) - (u * u * u * Math.sin(3 * v)) / 6;
+    let z0 = u * Math.cos(v);
+
+    //f(u + delta, v)
+    let x1 = -Math.cos(v) / (2 * u1) - (u1 * u1 * u1 * Math.cos(3 * v)) / 6;
+    let y1 = -Math.sin(v) / (2 * u1) - (u1 * u1 * u1 * Math.sin(3 * v)) / 6;
+    let z1 = u1 * Math.cos(v);
+
+    return [x1 - x0, y1 - y0, z1 - z0];
+}
+
+//Дотична по напрямку V
+function tangentV(u, v) {
+    let delta = 0.001;
+    let v1 = v + delta;
+
+    //f(u, v)
+    let x0 = -Math.cos(v) / (2 * u) - (u * u * u * Math.cos(3 * v)) / 6;
+    let y0 = -Math.sin(v) / (2 * u) - (u * u * u * Math.sin(3 * v)) / 6;
+    let z0 = u * Math.cos(v);
+
+    //f(u, v + delta)
+    let x1 = -Math.cos(v1) / (2 * u) - (u * u * u * Math.cos(3 * v1)) / 6;
+    let y1 = -Math.sin(v1) / (2 * u) - (u * u * u * Math.sin(3 * v1)) / 6;
+    let z1 = u * Math.cos(v1);
+
+    return [x1 - x0, y1 - y0, z1 - z0];
+}
+
+
