@@ -37,18 +37,18 @@ function Model(name, uGranularity, vGranularity) {
 
     //Відтворити дані
     this.Draw = function () {
+        // Прив'язка буфера вершин і передача в атрибут `vertex`
         gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
         gl.vertexAttribPointer(shProgram.iAttribVertex, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(shProgram.iAttribVertex);
 
-        /*
+        // Прив'язка буфера нормалей і передача в атрибут `normal`
         gl.bindBuffer(gl.ARRAY_BUFFER, this.iNormalBuffer);
         gl.vertexAttribPointer(shProgram.iAttribNormal, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(shProgram.iAttribNormal);
-        */
 
-        //Відмальовування
-        //gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iIndexBuffer);
+        // Прив'язка буфера індексів і відтворення елементів
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iIndexBuffer);
         gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0);
     }
 }
@@ -107,8 +107,9 @@ function CreateSurfaceData(uGranularity, vGranularity) {
 
 
 
-
-//Normal Analytic
+//
+//NORMAL ANALYTIC
+//
 //Обчислюємо вектор нормалі як перехресний добуток дотичних U та V
 function calculateNormal(u, v) {
     let tu = tangentU(u, v);
@@ -119,8 +120,6 @@ function calculateNormal(u, v) {
     let ny = tu[2] * tv[0] - tu[0] * tv[2];
     let nz = tu[0] * tv[1] - tu[1] * tv[0];
 
-    //Нормалізуємо
-    let length = Math.sqrt(nx * nx + ny * ny + nz * nz);
     return [nx / length, ny / length, nz / length];
 }
 
@@ -139,7 +138,7 @@ function tangentU(u, v) {
     let y1 = -Math.sin(v) / (2 * u1) - (u1 * u1 * u1 * Math.sin(3 * v)) / 6;
     let z1 = u1 * Math.cos(v);
 
-    return [(x1 - x0)/delta, (y1 - y0)/delta, (z1 - z0)/delta];
+    return [(x1 - x0) / delta, (y1 - y0) / delta, (z1 - z0) / delta];
 }
 
 //Дотична по напрямку V
@@ -157,7 +156,7 @@ function tangentV(u, v) {
     let y1 = -Math.sin(v1) / (2 * u) - (u * u * u * Math.sin(3 * v1)) / 6;
     let z1 = u * Math.cos(v1);
 
-    return [(x1 - x0)/delta, (y1 - y0)/delta, (z1 - z0)/delta];
+    return [(x1 - x0) / delta, (y1 - y0) / delta, (z1 - z0) / delta];
 }
 
 

@@ -3,18 +3,10 @@
 // Vertex shader
 const vertexShaderSource = `
 attribute vec3 vertex;
-attribute vec3 normal;
 uniform mat4 ModelViewProjectionMatrix;
-uniform mat3 NormalMatrix;
-uniform vec3 lightDirection;
-
-varying vec3 vColor;
 
 void main() {
-    vec3 transformedNormal = normalize(NormalMatrix * normal);
-    float lightIntensity = max(dot(transformedNormal, lightDirection), 0.0);
-    vColor = vec3(1.0, 1.0, 1.0) * lightIntensity;
-    gl_Position = ModelViewProjectionMatrix * vec4(vertex, 1.0);
+    gl_Position = ModelViewProjectionMatrix * vec4(vertex,1.0);
 }`;
 
 

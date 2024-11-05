@@ -48,9 +48,8 @@ function ShaderProgram(name, program) {
 }
 
 
-/* Draws a colored cube, along with a set of coordinate axes.
- * (Note that the use of the above drawPrimitive function is not an efficient
- * way to draw with WebGL.  Here, the geometry is so simple that it doesn't matter.)
+/* 
+ *  Draws
  */
 function draw() { 
     //Колір чистого фону
@@ -59,7 +58,7 @@ function draw() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
     /* Set the values of the projection transformation */
-    let projection = m4.perspective(Math.PI / 6, 1500/550, 3, 25); 
+    let projection = m4.perspective(Math.PI / 6, 1500/500, 3, 25); 
     
     /* Get the view matrix from the SimpleRotator object.*/
     let modelView = spaceball.getViewMatrix();
@@ -96,6 +95,7 @@ function initGL() {
     shProgram.iAttribVertex              = gl.getAttribLocation(prog, "vertex");
     shProgram.iModelViewProjectionMatrix = gl.getUniformLocation(prog, "ModelViewProjectionMatrix");
     shProgram.iColor                     = gl.getUniformLocation(prog, "color");
+    shProgram.iAttribNormal              = gl.getAttribLocation(prog, "normal"); 
 
     //Створення буфера
     surface = new Model("RICHMOND'S MINIMAL SURFACE", vGranularity, uGranularity);
