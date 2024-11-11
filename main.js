@@ -8,23 +8,21 @@ let spaceball;                  // A SimpleRotator object that lets the user rot
 let uGranularity = 20;
 let vGranularity = 20;
 
-function deg2rad(angle) {
-    return angle * Math.PI / 180;
-}
-
-
 //Оновлення даних двох слайдерів,
 //що забезпечують можливість контролювати зернистість поверхні в U та V напрямках
 function updateGranularity() {
-    surface.uGranularity = parseInt(document.getElementById("uGranularity").value);
-    surface.vGranularity = parseInt(document.getElementById("vGranularity").value);
+    uGranularity = parseInt(document.getElementById("uGranularity").value);
+    vGranularity = parseInt(document.getElementById("vGranularity").value);
 
-    document.getElementById("uGranularityValue").textContent = surface.uGranularity;
-    document.getElementById("vGranularityValue").textContent = surface.vGranularity;
+    document.getElementById("uGranularityValue").textContent = uGranularity;
+    document.getElementById("vGranularityValue").textContent = vGranularity;
 
     //Оновлення поверхні
-    let surfaceData = CreateSurfaceData(surface.uGranularity, surface.vGranularity);
-    surface.BufferData(surfaceData.vertices, surfaceData.indices, surfaceData.normals);
+    let data = {}
+    CreateSurfaceData(data);
+
+    //Створення буфера
+    surface.BufferData(data.verticesF32, data.indicesU16);
     draw();
 }
 
@@ -95,14 +93,18 @@ function initGL() {
     shProgram.iAttribVertex              = gl.getAttribLocation(prog, "vertex");
     shProgram.iModelViewProjectionMatrix = gl.getUniformLocation(prog, "ModelViewProjectionMatrix");
     shProgram.iColor                     = gl.getUniformLocation(prog, "color");
-    shProgram.iAttribNormal              = gl.getAttribLocation(prog, "normal"); 
+
+    let data = {};
+
+    CreateSurfaceData(data);
 
     //Створення буфера
-    surface = new Model("RICHMOND'S MINIMAL SURFACE", vGranularity, uGranularity);
+    surface = new Model("RICHMOND'S MINIMAL SURFACE");
+    surface.BufferData(data.verticesF32, data.indicesU16);
 
     //ФУНКЦІЯ ПОВЕРХНІ
-    let surfaceData = CreateSurfaceData(surface.uGranularity, surface.vGranularity);
-    surface.BufferData(surfaceData.vertices, surfaceData.indices, surfaceData.normals);
+    //let surfaceData = CreateSurfaceData(surface.uGranularity, surface.vGranularity);
+    //surface.BufferData(surfaceData.vertices, surfaceData.indices, surfaceData.normals);
 
     gl.enable(gl.DEPTH_TEST);
 }

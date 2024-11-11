@@ -1,11 +1,60 @@
 //RICHMOND'S MINIMAL SURFACE
 //Basing on the skeleton project add a new js script file containing Model object.
 //Model object has to draw the surface wireframe as two sets of vertices: a set of U polylines and a set of V polylines.
-
 //Shading Gouraud
 
+//Кут з градусів в радіани
+function deg2rad(angle) {
+    return angle * Math.PI / 180;
+}
+
+function Vertex(p)
+{
+    this.p = p;
+    this.normal = [];
+    this.triangles = [];
+}
+
+function Triangle(v0, v1, v2)
+{
+    this.v0 = v0;
+    this.v1 = v1;
+    this.v2 = v2;
+    this.normal = [];
+    this.tangent = [];
+}
 
 
+function Model(name) {
+    this.name = name;
+    this.iVertexBuffer = gl.createBuffer();
+    this.iIndexBuffer = gl.createBuffer();
+    this.count = 0;
+
+    //Забуферизувати дані
+    this.BufferData = function(vertices, indices) {
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STREAM_DRAW);
+
+        gl.vertexAttribPointer(shProgram.iAttribVertex, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(shProgram.iAttribVertex);
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iIndexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STREAM_DRAW);
+
+        this.count = indices.length;
+    }
+
+    //Відтворити дані
+    this.Draw = function() {
+        gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0);
+    }
+}
+
+
+
+/*
 //Constructor
 function Model(name, uGranularity, vGranularity) {
     this.name = name;
@@ -51,57 +100,76 @@ function Model(name, uGranularity, vGranularity) {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iIndexBuffer);
         gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0);
     }
-}
+}*/
 
 
-//Створення точок Мінімальної поверхні Річмонда
-function CreateSurfaceData(uGranularity, vGranularity) {
-    let vertexList = [];
-    let indexList = [];
-    let normalList = [];
+function CreateSurfaceData(data) {
+    let vertices = [];
+    let triangles = [];
 
-    //Границі
+    //Surface bounds
     let uMin = 0.25, uMax = 1, vMin = 0, vMax = 2 * Math.PI;
 
-    //Кроки
+    //Steps for u and v
     let uStep = (uMax - uMin) / uGranularity;
     let vStep = (vMax - vMin) / vGranularity;
 
-    //Вершини і нормалі
+    //Vertices calculation
     for (let i = 0; i <= uGranularity; i++) {
         let u = uMin + i * uStep;
         for (let j = 0; j <= vGranularity; j++) {
             let v = vMin + j * vStep;
 
-            //Координати
+            //Richmond's minimal surface parametric equations
+            //From PA#1
             let x = -Math.cos(v) / (2 * u) - (u * u * u * Math.cos(3 * v)) / 6;
             let y = -Math.sin(v) / (2 * u) - (u * u * u * Math.sin(3 * v)) / 6;
             let z = u * Math.cos(v);
-            vertexList.push(x, y, z);
 
-            //Нормаль
-            let normal = calculateNormal(u, v);
-            normalList.push(...normal);
+            vertices.push(new Vertex([x, y, z]));
         }
     }
 
-    //VBO (Vertex Buffer Object) з індексами
+    //Triangles calculation
     for (let i = 0; i < uGranularity; i++) {
         for (let j = 0; j < vGranularity; j++) {
-            let first = i * (vGranularity + 1) + j;
-            let second = first + vGranularity + 1;
+            //Indices of the four vertices of each quad
+            let v0 = i * (vGranularity + 1) + j;
+            let v1 = v0 + 1;
+            let v2 = v0 + (vGranularity + 1);
+            let v3 = v2 + 1;
 
-            //Два трикутника на кожну вершину
-            indexList.push(first, second, first + 1);
-            indexList.push(second, second + 1, first + 1);
+            // wo triangles for each quad
+            triangles.push(new Triangle(v0, v2, v1));
+            triangles.push(new Triangle(v1, v2, v3));
+
+            //Attach triangles to vertices for normal calculation or other operations
+            let trianInd = triangles.length - 2;
+            vertices[v0].triangles.push(trianInd);
+            vertices[v2].triangles.push(trianInd);
+            vertices[v1].triangles.push(trianInd);
+
+            let trianInd2 = triangles.length - 1;
+            vertices[v1].triangles.push(trianInd2);
+            vertices[v2].triangles.push(trianInd2);
+            vertices[v3].triangles.push(trianInd2);
         }
     }
 
-    return { vertices: vertexList, indices: indexList, normals: normalList };
+    data.verticesF32 = new Float32Array(vertices.length * 3);
+    for (let i = 0, len = vertices.length; i < len; i++) {
+        data.verticesF32[i * 3 + 0] = vertices[i].p[0];
+        data.verticesF32[i * 3 + 1] = vertices[i].p[1];
+        data.verticesF32[i * 3 + 2] = vertices[i].p[2];
+    }
+
+    data.indicesU16 = new Uint16Array(triangles.length * 3);
+    for (let i = 0, len = triangles.length; i < len; i++) {
+        data.indicesU16[i * 3 + 0] = triangles[i].v0;
+        data.indicesU16[i * 3 + 1] = triangles[i].v1;
+        data.indicesU16[i * 3 + 2] = triangles[i].v2;
+    }
 }
-
-
-
 
 
 
