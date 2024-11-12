@@ -74,8 +74,8 @@ function draw() {
     gl.uniformMatrix4fv(shProgram.iModelViewProjectionMatrix, false, modelViewProjection );
     
     /* Draw with this color. */
-    gl.uniform4fv(shProgram.iColor, [0.95, 0.95, 1, 1] );
-    //gl.uniform4fv(shProgram.iColor, [0, 1, 0, 1] );
+    //gl.uniform4fv(shProgram.iColor, [0.95, 0.95, 1, 1] );
+    gl.uniform4fv(shProgram.iColor, [0, 1, 0, 1] );
 
     surface.Draw();
 }
@@ -101,11 +101,6 @@ function initGL() {
     //Створення буфера
     surface = new Model("RICHMOND'S MINIMAL SURFACE");
     surface.BufferData(data.verticesF32, data.indicesU16);
-
-    //ФУНКЦІЯ ПОВЕРХНІ
-    //let surfaceData = CreateSurfaceData(surface.uGranularity, surface.vGranularity);
-    //surface.BufferData(surfaceData.vertices, surfaceData.indices, surfaceData.normals);
-
     gl.enable(gl.DEPTH_TEST);
 }
 

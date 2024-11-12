@@ -54,55 +54,6 @@ function Model(name) {
 
 
 
-/*
-//Constructor
-function Model(name, uGranularity, vGranularity) {
-    this.name = name;
-
-    this.iVertexBuffer = gl.createBuffer();
-    this.iIndexBuffer = gl.createBuffer();
-    this.iNormalBuffer = gl.createBuffer();
-
-    this.count = 0;
-    this.uGranularity = uGranularity;
-    this.vGranularity = vGranularity;
-
-    //Забуферизувати дані
-    this.BufferData = function (vertices, indices, normals) {
-        //Вершини
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STREAM_DRAW);
-
-        //VBO
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iIndexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
-
-        //Нормалі
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.iNormalBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
-
-        this.count = indices.length;
-    }
-
-    //Відтворити дані
-    this.Draw = function () {
-        // Прив'язка буфера вершин і передача в атрибут `vertex`
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
-        gl.vertexAttribPointer(shProgram.iAttribVertex, 3, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(shProgram.iAttribVertex);
-
-        // Прив'язка буфера нормалей і передача в атрибут `normal`
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.iNormalBuffer);
-        gl.vertexAttribPointer(shProgram.iAttribNormal, 3, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(shProgram.iAttribNormal);
-
-        // Прив'язка буфера індексів і відтворення елементів
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iIndexBuffer);
-        gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0);
-    }
-}*/
-
-
 function CreateSurfaceData(data) {
     let vertices = [];
     let triangles = [];
