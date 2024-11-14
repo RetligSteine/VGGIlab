@@ -23,8 +23,21 @@ function updateGranularity() {
 
     //Створення буфера
     surface.BufferData(data.verticesF32, data.normalsF32, data.indicesU16);
-    draw();
 }
+
+
+
+//Освітлення
+let lightAngle = 0;
+const lightRadius = 50.0;
+function updateLightPosition() {
+    //"Поворот" світла навколо центру
+    lightAngle += 0.01;
+    let lightX = lightRadius * Math.cos(lightAngle);
+    let lightZ = lightRadius * Math.sin(lightAngle);
+    return [lightX, 10, lightZ];
+}
+
 
 
 // Constructor
@@ -37,8 +50,12 @@ function ShaderProgram(name, program) {
     this.iAttribNormal = -1;
     this.iColor = -1;
     this.iModelViewProjectionMatrix = -1;
-    this.iModelViewMatrix = -1;
-    this.iNormalMatrix = -1;
+    this.iLightPosition = -1;
+    this.iAmbientColor = -1;
+    this.iDiffuseColor = -1;
+    this.iSpecularColor = -1;
+    this.iViewDirection = -1;
+    this.iShininess = -1;
 
     this.Use = function() {
         gl.useProgram(this.prog);
@@ -46,10 +63,11 @@ function ShaderProgram(name, program) {
 }
 
 
+
 /* 
  *  Draws
  */
-function draw() { 
+function draw() {
     //Колір чистого фону
     gl.clearColor(0.447, 0.58, 0.847, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -60,19 +78,31 @@ function draw() {
     /* Get the view matrix from the SimpleRotator object.*/
     let modelView = spaceball.getViewMatrix();
 
-    let rotateToPointZero = m4.axisRotation([0.707,0.707,0], 0.7);
-    let translateToPointZero = m4.translation(0,0,-10);
+    let rotateToPointZero = m4.axisRotation([0.707, 0.707, 0], 0.7);
+    let translateToPointZero = m4.translation(0, 0, -10);
+    let matAccum0 = m4.multiply(rotateToPointZero, modelView);
+    let matAccum1 = m4.multiply(translateToPointZero, matAccum0);
 
-    let matAccum0 = m4.multiply(rotateToPointZero, modelView );
-    let matAccum1 = m4.multiply(translateToPointZero, matAccum0 );
-        
-    /* Multiply the projection matrix times the modelview matrix to give the
-       combined transformation matrix, and send that to the shader program. */
-    let modelViewProjection = m4.multiply(projection, matAccum1 );
+    let modelViewProjection = m4.multiply(projection, matAccum1);
 
-    gl.uniformMatrix4fv(shProgram.iModelViewProjectionMatrix, false, modelViewProjection );
+    //Оновлюємо світло в даний момент часу
+    const lightPosition = updateLightPosition();
+    gl.uniform3fv(shProgram.iLightPosition, lightPosition);
+
+    //direction vector = (0,0,1), по завданню
+    gl.uniform3fv(shProgram.iViewDirection, [0, 0, 1]);
+
+    //Параметри освітлення
+    gl.uniform3fv(shProgram.iAmbientColor, [0.2, 0.2, 0.2]);
+    gl.uniform3fv(shProgram.iDiffuseColor, [0.7, 0.7, 0.7]);
+    gl.uniform3fv(shProgram.iSpecularColor, [1.0, 1.0, 1.0]);
+    gl.uniform1f(shProgram.iShininess, 20.0);
+
+    gl.uniformMatrix4fv(shProgram.iModelViewProjectionMatrix, false, modelViewProjection);
 
     surface.Draw();
+    //Наступний кадр, для збереження крутіння світла
+    requestAnimationFrame(draw);
 }
 
 
@@ -89,9 +119,15 @@ function initGL() {
     shProgram.iAttribNormal              = gl.getAttribLocation(prog, "normal");
     shProgram.iModelViewProjectionMatrix = gl.getUniformLocation(prog, "ModelViewProjectionMatrix");
     shProgram.iModelViewMatrix           = gl.getUniformLocation(prog, "ModelViewMatrix");
+    shProgram.iLightPosition             = gl.getUniformLocation(prog, "lightPosition");
+    shProgram.iAmbientColor              = gl.getUniformLocation(prog, "ambientColor");
+    shProgram.iDiffuseColor              = gl.getUniformLocation(prog, "diffuseColor");
+    shProgram.iSpecularColor             = gl.getUniformLocation(prog, "specularColor");
+    shProgram.iViewDirection             = gl.getUniformLocation(prog, "viewDirection");
+    shProgram.iShininess                 = gl.getUniformLocation(prog, "shininess");
 
+    //Створюємо дані поверхні
     let data = {};
-
     CreateSurfaceData(data);
 
     //Створення буфера
@@ -168,7 +204,7 @@ function init() {
         return;
     }
 
-    spaceball = new TrackballRotator(canvas, draw, 0);
+    spaceball = new TrackballRotator(canvas, 0);
 
     //Починаємо малювати
     draw();
