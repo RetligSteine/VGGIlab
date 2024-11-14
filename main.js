@@ -29,13 +29,13 @@ function updateGranularity() {
 
 //Освітлення
 let lightAngle = 0;
-const lightRadius = 50.0;
+const lightRadius = 10.0;
 function updateLightPosition() {
     //"Поворот" світла навколо центру
-    lightAngle += 0.01;
+    lightAngle += 0.03;
     let lightX = lightRadius * Math.cos(lightAngle);
-    let lightZ = lightRadius * Math.sin(lightAngle);
-    return [lightX, 10, lightZ];
+    let lightY = lightRadius * Math.sin(lightAngle);
+    return [lightX, lightY, 2];
 }
 
 
@@ -93,10 +93,10 @@ function draw() {
     gl.uniform3fv(shProgram.iViewDirection, [0, 0, 1]);
 
     //Параметри освітлення
-    gl.uniform3fv(shProgram.iAmbientColor, [0.2, 0.2, 0.2]);
-    gl.uniform3fv(shProgram.iDiffuseColor, [0.7, 0.7, 0.7]);
-    gl.uniform3fv(shProgram.iSpecularColor, [1.0, 1.0, 1.0]);
-    gl.uniform1f(shProgram.iShininess, 20.0);
+    gl.uniform3fv(shProgram.iAmbientColor, [0.871, 0.451, 0]);
+    gl.uniform3fv(shProgram.iDiffuseColor, [1, 0.714, 0]);
+    gl.uniform3fv(shProgram.iSpecularColor, [1.0, 0.0, 0.0]);
+    gl.uniform1f(shProgram.iShininess, 10.0);
 
     gl.uniformMatrix4fv(shProgram.iModelViewProjectionMatrix, false, modelViewProjection);
 
