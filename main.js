@@ -71,10 +71,6 @@ function draw() {
     let modelViewProjection = m4.multiply(projection, matAccum1 );
 
     gl.uniformMatrix4fv(shProgram.iModelViewProjectionMatrix, false, modelViewProjection );
-    gl.uniformMatrix4fv(shProgram.iModelViewMatrix, false, matAccum1 );
-
-    let normalMatrix = m4.transpose(m4.inverse(matAccum1));
-    gl.uniformMatrix3fv(shProgram.iNormalMatrix, false, normalMatrix);
 
     surface.Draw();
 }
@@ -93,7 +89,6 @@ function initGL() {
     shProgram.iAttribNormal              = gl.getAttribLocation(prog, "normal");
     shProgram.iModelViewProjectionMatrix = gl.getUniformLocation(prog, "ModelViewProjectionMatrix");
     shProgram.iModelViewMatrix           = gl.getUniformLocation(prog, "ModelViewMatrix");
-    shProgram.iNormalMatrix              = gl.getUniformLocation(prog, "NormalMatrix");
 
     let data = {};
 

@@ -3,10 +3,16 @@
 // Vertex shader
 const vertexShaderSource = `
 attribute vec3 vertex;
+attribute vec3 normal;
 uniform mat4 ModelViewProjectionMatrix;
 
+varying vec4 vColor;
+
 void main() {
-    gl_Position = ModelViewProjectionMatrix * vec4(vertex,1.0);
+    vec4 color = vec4(normal, 1.0);
+    vColor = color;
+
+    gl_Position = ModelViewProjectionMatrix * vec4(vertex, 1.0);
 }`;
 
 
@@ -18,7 +24,8 @@ const fragmentShaderSource = `
    precision mediump float;
 #endif
 
-uniform vec4 color;
+varying vec4 vColor;
+
 void main() {
-    gl_FragColor = color;
+    gl_FragColor = vColor;
 }`;
