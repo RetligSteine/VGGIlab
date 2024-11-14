@@ -8,15 +8,13 @@ function deg2rad(angle) {
     return angle * Math.PI / 180;
 }
 
-function Vertex(p)
-{
+function Vertex(p) {
     this.p = p;
-    this.normal = [];
+    this.normal = [0, 0, 0];
     this.triangles = [];
 }
 
-function Triangle(v0, v1, v2)
-{
+function Triangle(v0, v1, v2) {
     this.v0 = v0;
     this.v1 = v1;
     this.v2 = v2;
@@ -24,24 +22,30 @@ function Triangle(v0, v1, v2)
     this.tangent = [];
 }
 
-
+//Модель поверхні Річмонда
 function Model(name) {
     this.name = name;
     this.iVertexBuffer = gl.createBuffer();
+    this.iNormalBuffer = gl.createBuffer();
     this.iIndexBuffer = gl.createBuffer();
     this.count = 0;
 
     //Забуферизувати дані
-    this.BufferData = function(vertices, indices) {
-
+    this.BufferData = function(vertices, normals, indices) {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STREAM_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
         gl.vertexAttribPointer(shProgram.iAttribVertex, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(shProgram.iAttribVertex);
 
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.iNormalBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
+
+        gl.vertexAttribPointer(shProgram.iAttribNormal, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(shProgram.iAttribNormal);
+
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iIndexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STREAM_DRAW);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
 
         this.count = indices.length;
     }
@@ -58,21 +62,21 @@ function CreateSurfaceData(data) {
     let vertices = [];
     let triangles = [];
 
-    //Surface bounds
+    //Межі поверхні
     let uMin = 0.25, uMax = 1, vMin = 0, vMax = 2 * Math.PI;
 
-    //Steps for u and v
+    //Крок для u та v
     let uStep = (uMax - uMin) / uGranularity;
     let vStep = (vMax - vMin) / vGranularity;
 
-    //Vertices calculation
+    //Обчислення вершин поверхні
+    //З попередньої лаби
     for (let i = 0; i <= uGranularity; i++) {
         let u = uMin + i * uStep;
         for (let j = 0; j <= vGranularity; j++) {
             let v = vMin + j * vStep;
 
-            //Richmond's minimal surface parametric equations
-            //From PA#1
+            //Функція поверхні
             let x = -Math.cos(v) / (2 * u) - (u * u * u * Math.cos(3 * v)) / 6;
             let y = -Math.sin(v) / (2 * u) - (u * u * u * Math.sin(3 * v)) / 6;
             let z = u * Math.cos(v);
@@ -81,20 +85,20 @@ function CreateSurfaceData(data) {
         }
     }
 
-    //Triangles calculation
+    //Розрахунок трикутників
     for (let i = 0; i < uGranularity; i++) {
         for (let j = 0; j < vGranularity; j++) {
-            //Indices of the four vertices of each quad
+            //Індекси 4 вершин кожного прямокутника
             let v0 = i * (vGranularity + 1) + j;
             let v1 = v0 + 1;
             let v2 = v0 + (vGranularity + 1);
             let v3 = v2 + 1;
 
-            // wo triangles for each quad
+            //А кожен чотирикутник утворює 2 трикутника
             triangles.push(new Triangle(v0, v2, v1));
             triangles.push(new Triangle(v1, v2, v3));
 
-            //Attach triangles to vertices for normal calculation or other operations
+            //Прикріплюємо трикутники до вершин
             let trianInd = triangles.length - 2;
             vertices[v0].triangles.push(trianInd);
             vertices[v2].triangles.push(trianInd);
@@ -107,11 +111,46 @@ function CreateSurfaceData(data) {
         }
     }
 
+    //Розрахунок нормалей
+    for (let triangle of triangles) {
+        let v0 = vertices[triangle.v0].p;
+        let v1 = vertices[triangle.v1].p;
+        let v2 = vertices[triangle.v2].p;
+
+        //Дві дотичні до поверхні
+        let edge1 = [v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2]];
+        let edge2 = [v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2]];
+
+        //Беремо векторний добуток двох дотичних до поверхні(трикутника)
+        triangle.normal = m4.cross(edge1, edge2);
+        //І нормалізуємо результат
+        m4.normalize(triangle.normal, triangle.normal);
+    }
+
+    //Додаємо всі нормалі до вершини
+    for (let vertex of vertices) {
+        let normal = [0, 0, 0];
+        for (let triIndex of vertex.triangles) {
+            let triNormal = triangles[triIndex].normal;
+            normal[0] += triNormal[0];
+            normal[1] += triNormal[1];
+            normal[2] += triNormal[2];
+        }
+        //Нормалізуємо
+        m4.normalize(normal, normal);
+        vertex.normal = normal;
+    }
+
     data.verticesF32 = new Float32Array(vertices.length * 3);
+    data.normalsF32 = new Float32Array(vertices.length * 3);
     for (let i = 0, len = vertices.length; i < len; i++) {
         data.verticesF32[i * 3 + 0] = vertices[i].p[0];
         data.verticesF32[i * 3 + 1] = vertices[i].p[1];
         data.verticesF32[i * 3 + 2] = vertices[i].p[2];
+
+        data.normalsF32[i * 3 + 0] = vertices[i].normal[0];
+        data.normalsF32[i * 3 + 1] = vertices[i].normal[1];
+        data.normalsF32[i * 3 + 2] = vertices[i].normal[2];
     }
 
     data.indicesU16 = new Uint16Array(triangles.length * 3);
@@ -120,62 +159,6 @@ function CreateSurfaceData(data) {
         data.indicesU16[i * 3 + 1] = triangles[i].v1;
         data.indicesU16[i * 3 + 2] = triangles[i].v2;
     }
-}
-
-
-
-
-
-//
-//NORMAL ANALYTIC
-//
-//Обчислюємо вектор нормалі як перехресний добуток дотичних U та V
-function calculateNormal(u, v) {
-    let tu = tangentU(u, v);
-    let tv = tangentV(u, v);
-
-    //Перехресний добуток
-    let nx = tu[1] * tv[2] - tu[2] * tv[1];
-    let ny = tu[2] * tv[0] - tu[0] * tv[2];
-    let nz = tu[0] * tv[1] - tu[1] * tv[0];
-
-    return [nx / length, ny / length, nz / length];
-}
-
-//Дотична по напрямку U
-function tangentU(u, v) {
-    let delta = 0.001;
-    let u1 = u + delta;
-
-    //f(u, v)
-    let x0 = -Math.cos(v) / (2 * u) - (u * u * u * Math.cos(3 * v)) / 6;
-    let y0 = -Math.sin(v) / (2 * u) - (u * u * u * Math.sin(3 * v)) / 6;
-    let z0 = u * Math.cos(v);
-
-    //f(u + delta, v)
-    let x1 = -Math.cos(v) / (2 * u1) - (u1 * u1 * u1 * Math.cos(3 * v)) / 6;
-    let y1 = -Math.sin(v) / (2 * u1) - (u1 * u1 * u1 * Math.sin(3 * v)) / 6;
-    let z1 = u1 * Math.cos(v);
-
-    return [(x1 - x0) / delta, (y1 - y0) / delta, (z1 - z0) / delta];
-}
-
-//Дотична по напрямку V
-function tangentV(u, v) {
-    let delta = 0.001;
-    let v1 = v + delta;
-
-    //f(u, v)
-    let x0 = -Math.cos(v) / (2 * u) - (u * u * u * Math.cos(3 * v)) / 6;
-    let y0 = -Math.sin(v) / (2 * u) - (u * u * u * Math.sin(3 * v)) / 6;
-    let z0 = u * Math.cos(v);
-
-    //f(u, v + delta)
-    let x1 = -Math.cos(v1) / (2 * u) - (u * u * u * Math.cos(3 * v1)) / 6;
-    let y1 = -Math.sin(v1) / (2 * u) - (u * u * u * Math.sin(3 * v1)) / 6;
-    let z1 = u * Math.cos(v1);
-
-    return [(x1 - x0) / delta, (y1 - y0) / delta, (z1 - z0) / delta];
 }
 
 

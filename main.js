@@ -22,7 +22,7 @@ function updateGranularity() {
     CreateSurfaceData(data);
 
     //Створення буфера
-    surface.BufferData(data.verticesF32, data.indicesU16);
+    surface.BufferData(data.verticesF32, data.normalsF32, data.indicesU16);
     draw();
 }
 
@@ -33,12 +33,12 @@ function ShaderProgram(name, program) {
     this.name = name;
     this.prog = program;
 
-    // Location of the attribute variable in the shader program.
     this.iAttribVertex = -1;
-    // Location of the uniform specifying a color for the primitive.
+    this.iAttribNormal = -1;
     this.iColor = -1;
-    // Location of the uniform matrix representing the combined transformation.
     this.iModelViewProjectionMatrix = -1;
+    this.iModelViewMatrix = -1;
+    this.iNormalMatrix = -1;
 
     this.Use = function() {
         gl.useProgram(this.prog);
@@ -52,7 +52,6 @@ function ShaderProgram(name, program) {
 function draw() { 
     //Колір чистого фону
     gl.clearColor(0.447, 0.58, 0.847, 1);
-    //gl.clearColor(0, 0, 0, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
     /* Set the values of the projection transformation */
@@ -72,10 +71,10 @@ function draw() {
     let modelViewProjection = m4.multiply(projection, matAccum1 );
 
     gl.uniformMatrix4fv(shProgram.iModelViewProjectionMatrix, false, modelViewProjection );
-    
-    /* Draw with this color. */
-    //gl.uniform4fv(shProgram.iColor, [0.95, 0.95, 1, 1] );
-    gl.uniform4fv(shProgram.iColor, [0, 1, 0, 1] );
+    gl.uniformMatrix4fv(shProgram.iModelViewMatrix, false, matAccum1 );
+
+    let normalMatrix = m4.transpose(m4.inverse(matAccum1));
+    gl.uniformMatrix3fv(shProgram.iNormalMatrix, false, normalMatrix);
 
     surface.Draw();
 }
@@ -91,8 +90,10 @@ function initGL() {
 
     //Зв'язуємо графічний процесор з центральним для всього, що використовуємо
     shProgram.iAttribVertex              = gl.getAttribLocation(prog, "vertex");
+    shProgram.iAttribNormal              = gl.getAttribLocation(prog, "normal");
     shProgram.iModelViewProjectionMatrix = gl.getUniformLocation(prog, "ModelViewProjectionMatrix");
-    shProgram.iColor                     = gl.getUniformLocation(prog, "color");
+    shProgram.iModelViewMatrix           = gl.getUniformLocation(prog, "ModelViewMatrix");
+    shProgram.iNormalMatrix              = gl.getUniformLocation(prog, "NormalMatrix");
 
     let data = {};
 
@@ -100,7 +101,7 @@ function initGL() {
 
     //Створення буфера
     surface = new Model("RICHMOND'S MINIMAL SURFACE");
-    surface.BufferData(data.verticesF32, data.indicesU16);
+    surface.BufferData(data.verticesF32, data.normalsF32, data.indicesU16);
     gl.enable(gl.DEPTH_TEST);
 }
 
