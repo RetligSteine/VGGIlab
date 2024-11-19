@@ -8,8 +8,12 @@ function deg2rad(angle) {
     return angle * Math.PI / 180;
 }
 
-function Vertex(p) {
+// p: an array of xyz vertex coords
+// t: an array of uv tex coords
+function Vertex(p, t)
+{
     this.p = p;
+    this.t = t;
     this.normal = [0, 0, 0];
     this.triangles = [];
 }
@@ -26,23 +30,21 @@ function Triangle(v0, v1, v2) {
 function Model(name) {
     this.name = name;
     this.iVertexBuffer = gl.createBuffer();
-    this.iNormalBuffer = gl.createBuffer();
+    this.iTexCoordsBuffer = gl.createBuffer();
     this.iIndexBuffer = gl.createBuffer();
     this.count = 0;
 
+    // Identifier of a diffuse texture
+    this.idTextureDiffuse  = -1;
+    this.idTextureSpecular = -1;
+
     //Забуферизувати дані
-    this.BufferData = function(vertices, normals, indices) {
+    this.BufferData = function(vertices, indices, texCoords) {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
-        gl.vertexAttribPointer(shProgram.iAttribVertex, 3, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(shProgram.iAttribVertex);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.iNormalBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
-
-        gl.vertexAttribPointer(shProgram.iAttribNormal, 3, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(shProgram.iAttribNormal);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.iTexCoordsBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iIndexBuffer);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
@@ -52,6 +54,23 @@ function Model(name) {
 
     //Відтворити дані
     this.Draw = function() {
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, this.idTextureDiffuse);
+
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, this.idTextureSpecular);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
+        gl.vertexAttribPointer(shProgram.iAttribVertex, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(shProgram.iAttribVertex);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.iTexCoordsBuffer);
+        gl.vertexAttribPointer(shProgram.iAttribTexCoords, 2, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(shProgram.iAttribTexCoords);
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iIndexBuffer);
+
+        //gl.drawArrays(gl.LINE_STRIP, 0, this.count);
         gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0);
     }
 }
