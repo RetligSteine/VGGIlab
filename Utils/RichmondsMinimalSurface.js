@@ -40,50 +40,33 @@ function Model(name) {
 
     //Забуферизувати дані
     this.BufferData = function (vertices, normals, indices) {
-
-        /*
-                gl.bindBuffer(gl.ARRAY_BUFFER, this.iTexCoordsBuffer);
-                gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
-        */
         gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-
+    
         gl.vertexAttribPointer(shProgram.iAttribVertex, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(shProgram.iAttribVertex);
-
+    
         gl.bindBuffer(gl.ARRAY_BUFFER, this.iNormalBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
-
+    
         gl.vertexAttribPointer(shProgram.iAttribNormal, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(shProgram.iAttribNormal);
-
+    
+        /*
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.iTexCoordsBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
+    
+        gl.vertexAttribPointer(shProgram.iAttribTexCoords, 2, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(shProgram.iAttribTexCoords);*/
+    
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iIndexBuffer);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
-
-
+    
         this.count = indices.length;
     }
 
     //Відтворити дані
     this.Draw = function () {
-        /*
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, this.idTextureDiffuse);
-
-        gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, this.idTextureSpecular);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
-        gl.vertexAttribPointer(shProgram.iAttribVertex, 3, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(shProgram.iAttribVertex);
-       
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.iTexCoordsBuffer);
-        gl.vertexAttribPointer(shProgram.iAttribTexCoords, 2, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(shProgram.iAttribTexCoords);
-        
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iIndexBuffer);
-        */
-        //gl.drawArrays(gl.LINE_STRIP, 0, this.count);
         gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0);
     }
 }
@@ -113,7 +96,11 @@ function CreateSurfaceData(data) {
             let y = -Math.sin(v) / (2 * u) - (u * u * u * Math.sin(3 * v)) / 6;
             let z = u * Math.cos(v);
 
-            vertices.push(new Vertex([x, y, z]));
+            // Нормалізовані текстурні координати
+            let texU = (u - uMin) / (uMax - uMin);
+            let texV = (v - vMin) / (vMax - vMin);
+
+            vertices.push(new Vertex([x, y, z], [texU, texV]));
         }
     }
 
@@ -175,6 +162,8 @@ function CreateSurfaceData(data) {
 
     data.verticesF32 = new Float32Array(vertices.length * 3);
     data.normalsF32 = new Float32Array(vertices.length * 3);
+    data.texCoordsF32 = new Float32Array(vertices.length * 2);
+
     for (let i = 0, len = vertices.length; i < len; i++) {
         data.verticesF32[i * 3 + 0] = vertices[i].p[0];
         data.verticesF32[i * 3 + 1] = vertices[i].p[1];
@@ -183,6 +172,9 @@ function CreateSurfaceData(data) {
         data.normalsF32[i * 3 + 0] = vertices[i].normal[0];
         data.normalsF32[i * 3 + 1] = vertices[i].normal[1];
         data.normalsF32[i * 3 + 2] = vertices[i].normal[2];
+
+        data.texCoordsF32[i * 2 + 0] = vertices[i].t[0];
+        data.texCoordsF32[i * 2 + 1] = vertices[i].t[1];
     }
 
     data.indicesU16 = new Uint16Array(triangles.length * 3);
