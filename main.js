@@ -8,6 +8,16 @@ let spaceball;                  // A SimpleRotator object that lets the user rot
 let uGranularity = 20;
 let vGranularity = 20;
 
+let diffuseTexture, specularTexture, normalTexture;
+
+//Завантаження текстур
+function initTextures() {
+    diffuseTexture = LoadTexture('textures/diffuse.jpg');
+    specularTexture = LoadTexture('textures/specular.png');
+    normalTexture = LoadTexture('textures/normal.png');
+}
+
+
 //Оновлення даних двох слайдерів,
 //що забезпечують можливість контролювати зернистість поверхні в U та V напрямках
 function updateGranularity() {
@@ -109,6 +119,8 @@ function draw() {
 
 /* Initialize the WebGL context. Called from init() */
 function initGL() {
+    initTextures();
+
     //Створення шейдерної програми
     let prog = createProgram( gl, vertexShaderSource, fragmentShaderSource );
 
@@ -139,6 +151,23 @@ function initGL() {
     surface.BufferData(data.verticesF32, data.normalsF32, data.texCoordsF32, data.indicesU16);
     gl.enable(gl.DEPTH_TEST);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /* Creates a program for use in the WebGL context gl, and returns the
