@@ -37,7 +37,8 @@ function Model(name) {
     // Identifier of a diffuse texture
     this.idTextureDiffuse = -1;
     this.idTextureSpecular = -1;
-
+    this.idTextureNormal = -1;
+    
     //Забуферизувати дані
     this.BufferData = function (vertices, normals, texCoords, indices) {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
@@ -61,11 +62,16 @@ function Model(name) {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iIndexBuffer);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
     
+        this.idTextureDiffuse = diffuseTexture;
         this.count = indices.length;
     }
 
     //Відтворити дані
     this.Draw = function () {
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, this.idTextureDiffuse);
+        gl.uniform1i(gl.getUniformLocation(shProgram.prog, "diffuseTexture"), 0);
+
         gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0);
     }
 }

@@ -14,25 +14,28 @@ uniform vec3 viewDirection;
 uniform float shininess;
 
 varying vec4 vColor;
+varying vec2 vTexCoord;
 
 void main() {
     vec3 lightDir = normalize(lightPosition - vertex);
 
-    //Ambient
+    // Ambient
     vec3 ambient = ambientColor;
 
-    //Diffuse
+    // Diffuse
     float diffuseIntensity = max(dot(normal, lightDir), 0.0);
     vec3 diffuse = diffuseColor * diffuseIntensity;
 
-    //Specular
+    // Specular
     vec3 reflectDir = reflect(-lightDir, normal);
     float specIntensity = pow(max(dot(reflectDir, viewDirection), 0.0), shininess);
     vec3 specular = specularColor * specIntensity;
 
-    //Кінечний колір
+    // Final color
     vec3 finalColor = ambient + diffuse + specular;
     vColor = vec4(finalColor, 1.0);
+
+    vTexCoord = texCoord;
 
     gl_Position = ModelViewProjectionMatrix * vec4(vertex, 1.0);
 }`;
@@ -47,7 +50,11 @@ const fragmentShaderSource = `
 #endif
 
 varying vec4 vColor;
+varying vec2 vTexCoord;
+
+uniform sampler2D diffuseTexture;
 
 void main() {
-    gl_FragColor = vColor;
+    vec4 texColor = texture2D(diffuseTexture, vTexCoord);
+    gl_FragColor = texColor * vColor;
 }`;
