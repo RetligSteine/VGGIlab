@@ -63,6 +63,7 @@ function Model(name) {
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
     
         this.idTextureDiffuse = diffuseTexture;
+        this.idTextureSpecular = specularTexture;
         this.count = indices.length;
     }
 
@@ -71,6 +72,10 @@ function Model(name) {
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, this.idTextureDiffuse);
         gl.uniform1i(gl.getUniformLocation(shProgram.prog, "diffuseTexture"), 0);
+
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, this.idTextureSpecular);
+        gl.uniform1i(gl.getUniformLocation(shProgram.prog, "specularTexture"), 1);
 
         gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0);
     }

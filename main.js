@@ -52,7 +52,6 @@ function updateLightPosition() {
 
 // Constructor
 function ShaderProgram(name, program) {
-
     this.name = name;
     this.prog = program;
 
@@ -67,11 +66,14 @@ function ShaderProgram(name, program) {
     this.iSpecularColor = -1;
     this.iViewDirection = -1;
     this.iShininess = -1;
+    this.iDiffuseTexture = -1;
+    this.iSpecularTexture = -1;
 
     this.Use = function() {
         gl.useProgram(this.prog);
     }
 }
+
 
 
 
@@ -140,8 +142,9 @@ function initGL() {
     shProgram.iSpecularColor             = gl.getUniformLocation(prog, "specularColor");
     shProgram.iViewDirection             = gl.getUniformLocation(prog, "viewDirection");
     shProgram.iShininess                 = gl.getUniformLocation(prog, "shininess");
+    shProgram.iDiffuseTexture            = gl.getUniformLocation(prog, "diffuseTexture");
+    shProgram.iSpecularTexture           = gl.getUniformLocation(prog, "specularTexture");
     
-
     //Створюємо дані поверхні
     let data = {};
     CreateSurfaceData(data);
@@ -151,6 +154,7 @@ function initGL() {
     surface.BufferData(data.verticesF32, data.normalsF32, data.texCoordsF32, data.indicesU16);
     gl.enable(gl.DEPTH_TEST);
 }
+
 
 
 

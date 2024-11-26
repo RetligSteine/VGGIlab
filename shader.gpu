@@ -15,6 +15,7 @@ uniform float shininess;
 
 varying vec4 vColor;
 varying vec2 vTexCoord;
+varying vec3 vSpecularColor;
 
 void main() {
     vec3 lightDir = normalize(lightPosition - vertex);
@@ -29,10 +30,10 @@ void main() {
     // Specular
     vec3 reflectDir = reflect(-lightDir, normal);
     float specIntensity = pow(max(dot(reflectDir, viewDirection), 0.0), shininess);
-    vec3 specular = specularColor * specIntensity;
+    vSpecularColor = specularColor * specIntensity;
 
     // Final color
-    vec3 finalColor = ambient + diffuse + specular;
+    vec3 finalColor = ambient + diffuse;
     vColor = vec4(finalColor, 1.0);
 
     vTexCoord = texCoord;
@@ -41,6 +42,7 @@ void main() {
 }`;
 
 
+// Fragment shader
 // Fragment shader
 const fragmentShaderSource = `
 #ifdef GL_FRAGMENT_PRECISION_HIGH
@@ -51,10 +53,13 @@ const fragmentShaderSource = `
 
 varying vec4 vColor;
 varying vec2 vTexCoord;
+varying vec3 vSpecularColor;
 
 uniform sampler2D diffuseTexture;
+uniform sampler2D specularTexture;
 
 void main() {
     vec4 texColor = texture2D(diffuseTexture, vTexCoord);
-    gl_FragColor = texColor * vColor;
+    vec4 specColor = texture2D(specularTexture, vTexCoord);
+    gl_FragColor = texColor * vColor + vec4(vSpecularColor, 1.0) * specColor;
 }`;
