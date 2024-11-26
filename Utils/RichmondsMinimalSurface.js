@@ -39,7 +39,7 @@ function Model(name) {
     this.idTextureSpecular = -1;
 
     //Забуферизувати дані
-    this.BufferData = function (vertices, normals, indices) {
+    this.BufferData = function (vertices, normals, texCoords, indices) {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
     
@@ -51,13 +51,12 @@ function Model(name) {
     
         gl.vertexAttribPointer(shProgram.iAttribNormal, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(shProgram.iAttribNormal);
-    
-        /*
+        
         gl.bindBuffer(gl.ARRAY_BUFFER, this.iTexCoordsBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
     
         gl.vertexAttribPointer(shProgram.iAttribTexCoords, 2, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(shProgram.iAttribTexCoords);*/
+        gl.enableVertexAttribArray(shProgram.iAttribTexCoords);
     
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iIndexBuffer);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);

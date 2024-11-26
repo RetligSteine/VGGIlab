@@ -4,6 +4,7 @@
 const vertexShaderSource = `
 attribute vec3 vertex;
 attribute vec3 normal;
+attribute vec2 texCoord;
 uniform mat4 ModelViewProjectionMatrix;
 uniform vec3 lightPosition;
 uniform vec3 ambientColor;
