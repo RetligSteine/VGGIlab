@@ -13,9 +13,6 @@ let diffuseTexture, specularTexture, normalTexture;
 //Завантаження текстур
 function initTextures() {
     diffuseTexture = LoadTexture('textures/diffuse.jpg');
-    
-    //Зараз тут не дуже гарна текстура, зате на ній є місця, які чудово демонструють, що все працює
-    //Ця ж текстура, але нормальна - у specular1.png
     specularTexture = LoadTexture('textures/specular.png');
     normalTexture = LoadTexture('textures/normal.png');
 }
@@ -45,7 +42,7 @@ let lightAngle = 0;
 const lightRadius = 10.0;
 function updateLightPosition() {
     //"Поворот" світла навколо центру
-    lightAngle += 0.03;
+    lightAngle += 0.01;
     let lightX = lightRadius * Math.cos(lightAngle);
     let lightY = lightRadius * Math.sin(lightAngle);
     return [lightX, lightY, 2];
@@ -71,6 +68,7 @@ function ShaderProgram(name, program) {
     this.iShininess = -1;
     this.iDiffuseTexture = -1;
     this.iSpecularTexture = -1;
+    this.iNormalMap = -1;
 
     this.Use = function() {
         gl.useProgram(this.prog);

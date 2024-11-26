@@ -34,7 +34,7 @@ function Model(name) {
     this.iIndexBuffer = gl.createBuffer();
     this.count = 0;
 
-    // Identifier of a diffuse texture
+    //Текстури мої текстурочки
     this.idTextureDiffuse = -1;
     this.idTextureSpecular = -1;
     this.idTextureNormal = -1;
