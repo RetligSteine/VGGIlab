@@ -13,6 +13,9 @@ let diffuseTexture, specularTexture, normalTexture;
 //Завантаження текстур
 function initTextures() {
     diffuseTexture = LoadTexture('textures/diffuse.jpg');
+    
+    //Зараз тут не дуже гарна текстура, зате на ній є місця, які чудово демонструють, що все працює
+    //Ця ж текстура, але нормальна - у specular1.png
     specularTexture = LoadTexture('textures/specular.png');
     normalTexture = LoadTexture('textures/normal.png');
 }
