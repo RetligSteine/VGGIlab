@@ -106,7 +106,7 @@ function CreateSurfaceData(data) {
             let y = -Math.sin(v) / (2 * u) - (u * u * u * Math.sin(3 * v)) / 6;
             let z = u * Math.cos(v);
 
-            // Нормалізовані текстурні координати
+            //Нормалізовані текстурні координати
             let texU = (u - uMin) / (uMax - uMin);
             let texV = (v - vMin) / (vMax - vMin);
 
