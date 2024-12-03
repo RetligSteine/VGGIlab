@@ -11,6 +11,45 @@ let vGranularity = 20;
 let diffuseTexture, specularTexture, normalTexture;
 let textureScale = 1.0;
 
+//Зсув для масштабування, u-v координати точки
+let uOffset = 0.0;
+let vOffset = 0.0;
+
+//Обробка тиків на клавіатурі
+document.addEventListener('keydown', function(event) {
+    const step = 0.05;
+    switch (event.key) {
+        case 'a':
+            uOffset -= step;
+            break;
+        case 'd':
+            uOffset += step;
+            break;
+        case 'w':
+            vOffset -= step;
+            break;
+        case 's':
+            vOffset += step;
+            break;
+        default:
+            return;
+    }
+
+    //Оновлення показу координат
+    textureShiftUValue.textContent = Math.round(uOffset, 3);
+    textureShiftVValue.textContent = Math.round(vOffset, 3);
+
+    //Оновлення поверхні
+    let data = {};
+    CreateSurfaceData(data);
+
+    //Створення буфера
+    surface.BufferData(data.verticesF32, data.normalsF32, data.texCoordsF32, data.indicesU16);
+});
+
+
+
+
 //Завантаження текстур
 function initTextures() {
     diffuseTexture = LoadTexture('textures/diffuse.jpg');
