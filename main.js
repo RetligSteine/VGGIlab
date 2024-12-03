@@ -17,7 +17,7 @@ let vOffset = 0.0;
 
 //Обробка тиків на клавіатурі
 document.addEventListener('keydown', function(event) {
-    const step = 0.05;
+    const step = 0.01;
     switch (event.key) {
         case 'a':
             uOffset -= step;
@@ -36,8 +36,8 @@ document.addEventListener('keydown', function(event) {
     }
 
     //Оновлення показу координат
-    textureShiftUValue.textContent = Math.round(uOffset, 3);
-    textureShiftVValue.textContent = Math.round(vOffset, 3);
+    textureShiftUValue.textContent = uOffset.toPrecision(2);
+    textureShiftVValue.textContent = vOffset.toPrecision(2);
 
     //Оновлення поверхні
     let data = {};
@@ -57,7 +57,7 @@ function initTextures() {
     normalTexture = LoadTexture('textures/normal.png');
 }
 
-//Оновлення масштабу текстури
+//Оновлення параметру масштабу текстури
 function updateTextureScale() {
     textureScale = parseFloat(document.getElementById("textureScale").value);
     document.getElementById("textureScaleValue").textContent = textureScale;
