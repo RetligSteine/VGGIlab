@@ -88,7 +88,7 @@ function CreateSurfaceData(data) {
     let triangles = [];
 
     //Межі поверхні
-    let uMin = 0.25, uMax = 1, vMin = 0, vMax = 2 * Math.PI;
+    let uMin = 0.25, uMax = 1.3, vMin = 0, vMax = 2 * Math.PI;
 
     //Крок для u та v
     let uStep = (uMax - uMin) / uGranularity;
@@ -108,8 +108,8 @@ function CreateSurfaceData(data) {
 
             //Нормалізовані текстурні координати
             //Додаємо масштабування
-            let texU = textureScale * ((u - uMin) / (uMax - uMin) - uOffset) % 1;
-            let texV = textureScale * ((v - vMin) / (vMax - vMin) - vOffset) % 1;
+            let texU = Math.abs(textureScale * ((u - uMin) / (uMax - uMin) - uOffset)) % 1;
+            let texV = Math.abs(textureScale * ((v - vMin) / (vMax - vMin) - vOffset)) % 1;
 
             vertices.push(new Vertex([x, y, z], [texU, texV]));
         }

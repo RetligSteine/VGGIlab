@@ -19,21 +19,31 @@ let vOffset = 0.0;
 document.addEventListener('keydown', function(event) {
     const step = 0.01;
     switch (event.key) {
-        case 'a':
+        case 's':
             uOffset -= step;
             break;
-        case 'd':
+        case 'w':
             uOffset += step;
             break;
-        case 'w':
+        case 'a':
             vOffset -= step;
             break;
-        case 's':
+        case 'd':
             vOffset += step;
             break;
         default:
             return;
     }
+
+    //Не виходимо за границю
+    if(uOffset > 1)
+        uOffset = 1;
+    if(vOffset > 1)
+        vOffset = 1;
+    if(uOffset < 0)
+        uOffset = 0;
+    if(vOffset < 0)
+        vOffset = 0;
 
     //Оновлення показу координат
     textureShiftUValue.textContent = uOffset.toPrecision(2);
@@ -95,7 +105,7 @@ let lightAngle = 0;
 const lightRadius = 10.0;
 function updateLightPosition() {
     //"Поворот" світла навколо центру
-    lightAngle += 0.01;
+    lightAngle += 0.005;
     let lightX = lightRadius * Math.cos(lightAngle);
     let lightY = lightRadius * Math.sin(lightAngle);
     return [lightX, lightY, 2];
