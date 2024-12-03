@@ -107,8 +107,9 @@ function CreateSurfaceData(data) {
             let z = u * Math.cos(v);
 
             //Нормалізовані текстурні координати
-            let texU = (u - uMin) / (uMax - uMin);
-            let texV = (v - vMin) / (vMax - vMin);
+            //Додаємо масштабування
+            let texU = textureScale * (u - uMin) / (uMax - uMin) % 1;
+            let texV = textureScale * (v - vMin) / (vMax - vMin) % 1;;
 
             vertices.push(new Vertex([x, y, z], [texU, texV]));
         }

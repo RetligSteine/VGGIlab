@@ -9,12 +9,26 @@ let uGranularity = 20;
 let vGranularity = 20;
 
 let diffuseTexture, specularTexture, normalTexture;
+let textureScale = 1.0;
 
 //Завантаження текстур
 function initTextures() {
     diffuseTexture = LoadTexture('textures/diffuse.jpg');
     specularTexture = LoadTexture('textures/specular.png');
     normalTexture = LoadTexture('textures/normal.png');
+}
+
+//Оновлення масштабу текстури
+function updateTextureScale() {
+    textureScale = parseFloat(document.getElementById("textureScale").value);
+    document.getElementById("textureScaleValue").textContent = textureScale;
+
+     //Оновлення поверхні
+    let data = {};
+    CreateSurfaceData(data);
+
+    //Створення буфера
+    surface.BufferData(data.verticesF32, data.normalsF32, data.texCoordsF32, data.indicesU16);
 }
 
 
