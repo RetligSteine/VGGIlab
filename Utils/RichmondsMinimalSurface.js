@@ -31,6 +31,7 @@ function Model(name) {
     this.iVertexBuffer = gl.createBuffer();
     this.iTexCoordsBuffer = gl.createBuffer();
     this.iNormalBuffer = gl.createBuffer();
+    this.iTangentBuffer = gl.createBuffer();
     this.iIndexBuffer = gl.createBuffer();
     this.count = 0;
 
@@ -40,7 +41,7 @@ function Model(name) {
     this.idTextureNormal = -1;
     
     //Забуферизувати дані
-    this.BufferData = function (vertices, normals, texCoords, indices) {
+    this.BufferData = function (vertices, normals, texCoords, tangents, indices) {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.iVertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
     
@@ -59,11 +60,18 @@ function Model(name) {
         gl.vertexAttribPointer(shProgram.iAttribTexCoords, 2, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(shProgram.iAttribTexCoords);
     
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.iTangentBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, tangents, gl.STATIC_DRAW);
+    
+        gl.vertexAttribPointer(shProgram.iAttribTangent, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(shProgram.iAttribTangent);
+    
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iIndexBuffer);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
     
         this.idTextureDiffuse = diffuseTexture;
         this.idTextureSpecular = specularTexture;
+        this.idTextureNormal = normalTexture;
         this.count = indices.length;
     }
 
@@ -131,7 +139,6 @@ function CreateSurfaceData(data) {
             let trianInd = triangles.length - 2;
             vertices[v0].triangles.push(trianInd);
             vertices[v2].triangles.push(trianInd);
-            vertices[v1].triangles.push(trianInd);
 
             let trianInd2 = triangles.length - 1;
             vertices[v1].triangles.push(trianInd2);
@@ -170,9 +177,44 @@ function CreateSurfaceData(data) {
         vertex.normal = normal;
     }
 
+    //Розрахунок дотичних
+    for (let triangle of triangles) {
+        let v0 = vertices[triangle.v0];
+        let v1 = vertices[triangle.v1];
+        let v2 = vertices[triangle.v2];
+
+        let edge1 = [v1.p[0] - v0.p[0], v1.p[1] - v0.p[1], v1.p[2] - v0.p[2]];
+        let edge2 = [v2.p[0] - v0.p[0], v2.p[1] - v0.p[1], v2.p[2] - v0.p[2]];
+
+        let deltaUV1 = [v1.t[0] - v0.t[0], v1.t[1] - v0.t[1]];
+        let deltaUV2 = [v2.t[0] - v0.t[0], v2.t[1] - v0.t[1]];
+
+        let f = 1.0 / (deltaUV1[0] * deltaUV2[1] - deltaUV2[0] * deltaUV1[1]);
+
+        let tangent = [
+            f * (deltaUV2[1] * edge1[0] - deltaUV1[1] * edge2[0]),
+            f * (deltaUV2[1] * edge1[1] - deltaUV1[1] * edge2[1]),
+            f * (deltaUV2[1] * edge1[2] - deltaUV1[1] * edge2[2])
+        ];
+
+        m4.normalize(tangent, tangent);
+
+        v0.tangent = v0.tangent ? m4.addVectors(v0.tangent, tangent) : tangent;
+        v1.tangent = v1.tangent ? m4.addVectors(v1.tangent, tangent) : tangent;
+        v2.tangent = v2.tangent ? m4.addVectors(v2.tangent, tangent) : tangent;
+    }
+
+    //Нормалізація дотичних
+    for (let vertex of vertices) {
+        if (vertex.tangent) {
+            m4.normalize(vertex.tangent, vertex.tangent);
+        }
+    }
+
     data.verticesF32 = new Float32Array(vertices.length * 3);
     data.normalsF32 = new Float32Array(vertices.length * 3);
     data.texCoordsF32 = new Float32Array(vertices.length * 2);
+    data.tangentsF32 = new Float32Array(vertices.length * 3);
 
     for (let i = 0, len = vertices.length; i < len; i++) {
         data.verticesF32[i * 3 + 0] = vertices[i].p[0];
@@ -185,6 +227,16 @@ function CreateSurfaceData(data) {
 
         data.texCoordsF32[i * 2 + 0] = vertices[i].t[0];
         data.texCoordsF32[i * 2 + 1] = vertices[i].t[1];
+
+        if (vertices[i].tangent) {
+            data.tangentsF32[i * 3 + 0] = vertices[i].tangent[0];
+            data.tangentsF32[i * 3 + 1] = vertices[i].tangent[1];
+            data.tangentsF32[i * 3 + 2] = vertices[i].tangent[2];
+        } else {
+            data.tangentsF32[i * 3 + 0] = 1.0;
+            data.tangentsF32[i * 3 + 1] = 0.0;
+            data.tangentsF32[i * 3 + 2] = 0.0;
+        }
     }
 
     data.indicesU16 = new Uint16Array(triangles.length * 3);

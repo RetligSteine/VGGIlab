@@ -32,7 +32,7 @@ function updateGranularity() {
     CreateSurfaceData(data);
 
     //Створення буфера
-    surface.BufferData(data.verticesF32, data.normalsF32, data.texCoordsF32, data.indicesU16);
+    surface.BufferData(data.verticesF32, data.normalsF32, data.texCoordsF32, data.tangentsF32, data.indicesU16);
 }
 
 
@@ -58,6 +58,7 @@ function ShaderProgram(name, program) {
     this.iAttribVertex = -1;
     this.iAttribNormal = -1;
     this.iAttribTexCoords = -1;
+    this.iAttribTangent = -1;
     this.iColor = -1;
     this.iModelViewProjectionMatrix = -1;
     this.iLightPosition = -1;
@@ -74,6 +75,7 @@ function ShaderProgram(name, program) {
         gl.useProgram(this.prog);
     }
 }
+
 
 
 
@@ -134,6 +136,7 @@ function initGL() {
     shProgram.iAttribVertex              = gl.getAttribLocation(prog, "vertex");
     shProgram.iAttribNormal              = gl.getAttribLocation(prog, "normal");
     shProgram.iAttribTexCoords           = gl.getAttribLocation(prog, "texCoord");
+    shProgram.iAttribTangent             = gl.getAttribLocation(prog, "tangent");
     
     shProgram.iModelViewProjectionMatrix = gl.getUniformLocation(prog, "ModelViewProjectionMatrix");
     shProgram.iModelViewMatrix           = gl.getUniformLocation(prog, "ModelViewMatrix");
@@ -152,7 +155,7 @@ function initGL() {
 
     //Створення буфера
     surface = new Model("RICHMOND'S MINIMAL SURFACE");
-    surface.BufferData(data.verticesF32, data.normalsF32, data.texCoordsF32, data.indicesU16);
+    surface.BufferData(data.verticesF32, data.normalsF32, data.texCoordsF32, data.tangentsF32, data.indicesU16);
     gl.enable(gl.DEPTH_TEST);
 }
 
